@@ -1,91 +1,123 @@
 package fileClient;
+
 import java.io.*;
 import java.net.*;
+import java.nio.file.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /*	TSI 3713 Sistemas Distribuídos
-    Professor: 
-	Rodrigo Andrade Cardoso
-	
-	Alunos:
-	Luiz Ferreira Neto
-  	Pablo Ruan Dias
- 	Marcos Alexandre da Silva
- 
- */
+Professor: 
+Rodrigo Andrade Cardoso
+
+Alunos:
+Luiz Ferreira Neto
+	Pablo Ruan Dias
+	Marcos Alexandre da Silva
+
+*/
 
 
 /**
- * Esta classe representa um cliente que se conecta a um servidor para realizar operações
- * como listar arquivos (INDEX) ou baixar arquivos (GET) por meio de uma conexão de soquete.
+ * Esta é a classe principal que representa o cliente do sistema de gerenciamento de arquivos.
  */
 public class Cliente {
-    /**
-     * O método principal da classe que inicia a execução do cliente.
-     *
-     * @param args Os argumentos da linha de comando (não são usados neste caso).
-     * @throws IOException Se ocorrer um erro de E/S durante a comunicação com o servidor.
-     */
     public static void main(String[] args) throws IOException {
-        // Configuração do servidor de destino
-        String serverHostname = "localhost"; // Endereço do servidor
-        int serverPort = 8080; // Porta de conexão
+        // Configurações do servidor
+        String serverHostname = "localhost";
+        int serverPort = 8080;
 
         try (Socket socket = new Socket(serverHostname, serverPort);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             Scanner scanner = new Scanner(System.in)) {
 
-            // Conexão bem-sucedida com o servidor
-            System.out.println("Conectado ao servidor\n");
+            System.out.println("Connected to the server\n");
 
-            Scanner scanner = new Scanner(System.in);
-
-            // Loop principal para interação com o usuário
             while (true) {
-                System.out.println("Digite o comando \n\n(INDEX, GET <file_name>, or EXIT):");
+                try {
+                    System.out.println("Escolha a ação:");
+                    System.out.println("1. Listar todos arquivos (INDEX)");
+                    System.out.println("2. Baixar arquivo (GET)");
+                    System.out.println("3. Sair");
 
-                // Ler o comando do usuário
-                String userInput = scanner.nextLine();
+                    // Lê a escolha do usuário
+                    int choice = scanner.nextInt();
+                    scanner.nextLine();  
 
-                // Converter o comando para maiúsculas para fazer correspondência sem distinção entre maiúsculas e minúsculas
-                userInput = userInput.toUpperCase();
+                    if (choice == 1) {
+                        // Comando para listar arquivos
+                        out.println("INDEX");
+                        System.out.println("Comando INDEX enviado");
 
-                if (userInput.equals("INDEX")) {
-                    // Enviar o comando INDEX para o servidor
-                    out.println(userInput);
-                    System.out.println("Comando INDEX enviado");
+                        // Recebe a lista de arquivos do servidor
+                        String fileList = in.readLine();
+                        if (fileList != null) {
+                            System.out.println("\nLista de arquivos recebidos do servidor: ");
+                            System.out.println(fileList);
+                        } else {
+                            System.out.println("Resposta vazia do servidor.");
+                        }
+                    } else if (choice == 2) {
+                        // Comando para baixar um arquivo
+                        System.out.println("Digite o nome do arquivo para download: ");
+                        String fileName = scanner.nextLine();
 
-                    // Receber e imprimir a lista de arquivos do servidor
-                    String fileList = in.readLine();
-                    System.out.println("\nLista de arquivos recebida do servidor: ");
-                    System.out.println(fileList);
-                } else if (userInput.startsWith("GET ")) {
-                    // Extrair o nome do arquivo do comando GET
-                    String fileName = userInput.substring(4);
+                        System.out.println("Digite o diretório onde o arquivo será baixado (ex: C:\\caminho\\para\\salvar):");
+                        String destinationDirectory = scanner.nextLine();
 
-                    // Enviar o comando GET para o servidor com o nome do arquivo
-                    out.println(userInput);
-                    System.out.println("Comando GET para o arquivo: " + fileName);
+                        // Verifica se o diretório de destino é válido
+                        Path destinationPath = Paths.get(destinationDirectory, fileName);
+                        if (!Files.isDirectory(destinationPath.getParent())) {
+                            System.out.println("Diretório inválido.");
+                            continue;
+                        }
 
-                    // Receber a resposta do servidor
-                    String response = in.readLine();
-                    if (response.equals("OK")) {
-                        // Se a resposta for "OK", receber e imprimir o conteúdo do arquivo
-                        String fileContents = in.readLine();
-                        System.out.println("Conteúdos do arquivo recebidos: ");
-                        System.out.println(fileContents);
+                        // Envia o comando GET com o nome do arquivo
+                        out.println("GET " + fileName);
+                        System.out.println("Comando GET enviado para o arquivo: " + fileName);
+
+                        // Recebe a resposta do servidor
+                        String response = in.readLine();
+
+                        if (response != null) {
+                            if (response.equals("OK")) {
+                                // Se o arquivo existe, baixa e salva no diretório especificado
+                                try (FileWriter fileWriter = new FileWriter(destinationPath.toFile());
+                                     BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+                                    String line;
+                                    while ((line = in.readLine()).equals("END_OF_FILE")) {
+                                        bufferedWriter.write(line);
+                                        bufferedWriter.newLine();
+                                    }
+                                    System.out.println("Arquivo baixado com sucesso: " + fileName);
+                                }
+                            } else if (response.equals("ARQUIVO_INVALIDO")) {
+                                System.out.println("Nome do arquivo inválido. Arquivo não encontrado no servidor.");
+                            } else if (response.startsWith("ERROR")) {
+                                String errorMessage = response.substring(6);
+                                if (errorMessage.equals("Arquivo não encontrado")) {
+                                    System.out.println(" Arquivo não encontrado no servidor.");
+                                } else {
+                                    System.out.println("Erro do servidor: " + errorMessage);
+                                }
+                            } else {
+                                System.out.println("Resposta inesperada do servidor: " + response);
+                            }
+                        } else {
+                            System.out.println("Resposta inválida do servidor.");
+                        }
+                    } else if (choice == 3) {
+                        // Encerra a conexão e sai do loop
+                        System.out.println("Fechando a conexão com o servidor.");
+                        break;
                     } else {
-                        // Se a resposta não for "OK", imprimir uma mensagem de erro
-                        System.out.println("Erro: " + response);
+                        System.out.println("\nOpção inválida\nDigite: 1, 2, ou 3.\n");
                     }
-                } else if (userInput.equals("EXIT")) {
-                    // Enviar o comando EXIT para o servidor e encerrar o loop
-                    out.println(userInput);
-                    System.out.println("Comando EXIT enviado");
-                    break; // Sair do loop
-                } else {
-                    // Tratar comando inválido
-                    System.out.println("Erro: Comando inválido");
+                } catch (InputMismatchException e) {
+                    // Tratamento de entrada inválida
+                    System.out.println("Entrada inválida. Digite: 1, 2, ou 3.\n");
+                    scanner.nextLine();
                 }
             }
         }
