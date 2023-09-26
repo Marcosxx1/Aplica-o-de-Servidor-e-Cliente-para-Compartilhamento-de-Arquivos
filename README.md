@@ -1,104 +1,75 @@
-# Aplicação de Servidor e Cliente para Compartilhamento de Arquivos
+# Sistema de Gerenciamento de Arquivos - README
 
-Esta é uma aplicação de servidor e cliente que permite listar arquivos (INDEX) e baixar arquivos (GET) de uma pasta compartilhada.
+Este é um sistema simples de gerenciamento de arquivos que permite listar arquivos no servidor e baixar arquivos específicos do servidor. Ele consiste em dois componentes: o servidor e o cliente.
 
-## Configuração do Servidor
+## Executando o Servidor
 
-1. **Navegar até o diretório `src` do projeto:**
+Para executar o servidor, siga estas etapas:
 
+1. Navegue até o diretório `src` onde estão localizados os arquivos do servidor:
+
+### em um prompt
 ```shell
-   cd caminho/para/o/diretorio/src
+cd caminho\ate\a\pasta\src
 ```
 
-
- 
-### Compilar os arquivos do servidor:
-
- 
-
+## 2. Compile os arquivos do servidor e cliente usando o `javac`:
 
 ```shell
 javac fileClient/Server.java
+javac fileClient/Cliente.java
+
+ 
+java fileClient.Server arquivos_compartilhados
  ```
-### Execute o servidor, especificando o caminho para a pasta compartilhada (substitua <caminho> pelo caminho real da pasta compartilhada):
+
+## 3. Execute o servidor com o comando a seguir, fornecendo o caminho do diretório de arquivos compartilhados como argumento:
 
  
 ```shell
-java fileClient.Server <caminho>
+java fileClient.Server <caminho_do_diretorio_de_arquivos_compartilhados>
  ```
+Substitua `<caminho_do_diretorio_de_arquivos_compartilhados>` pelo caminho absoluto do diretório onde os arquivos compartilhados estão localizados.
 
-### O servidor estará disponível na porta padrão 8080.
-
-### Configuração do Cliente
-Abra um novo prompt de comando em uma janela separada.
-
-Navegue até o diretório src do projeto:
-
-```shell
-cd caminho/para/o/diretorio/src
- ```
-
-Compile o arquivo do cliente:
+ Nesta aplicação estamos utilizando a pasta arquivos_compartilhados:
 
  ```shell
- javac fileClient/Cliente.java
+ java fileClient.Server arquivos_compartilhados
  ```
+ 
 
+O servidor será iniciado e estará disponível na porta padrão 8080.
 
+## Executando o Cliente
+### em outro prompt
 
-### Execute o cliente, especificando o endereço do servidor (localhost) e a porta (8080):
+Para executar o cliente, siga estas etapas:
 
-  ```shell
-  java fileClient.Cliente localhost 8080
- ```
+1. Abra um novo prompt de comando.
 
-Agora você pode interagir com o cliente para listar arquivos disponíveis (INDEX) ou baixar arquivos específicos (GET) da pasta compartilhada.
+2. Navegue até o diretório `src` onde estão localizados os arquivos do cliente:
 
-Lembre-se de substituir <caminho> pelo caminho real da pasta compartilhada que deseja usar.
-
-Nota: Certifique-se de que o servidor esteja em execução antes de iniciar o cliente.
-
-Exemplo de Uso
-Para listar os arquivos disponíveis no servidor (comando INDEX):
-
-No cliente, digite INDEX.
-
-```vbnet
-Digite o comando
-
-(INDEX, GET <nome_do_arquivo>, ou EXIT):
+```shell
+cd caminho\ate\a\pasta\src
 ```
 
-Digite o comando
+3. Execute o cliente com o comando a seguir, fornecendo o endereço do servidor e a porta como argumentos (localhost e 8080, respectivamente, se estiverem em execução no mesmo computador):
 
-(INDEX, GET <nome_do_arquivo>, ou EXIT):
-O servidor enviará a lista de arquivos disponíveis.
-
-```arduino
-Lista de arquivos recebida do servidor:
-arquivo1.txt, arquivo2.txt, ...
-Para baixar um arquivo específico (comando GET):
+```shell
+java fileClient.Cliente localhost 8080
 ```
 
-Lista de arquivos recebida do servidor:
-arquivo1.txt, arquivo2.txt, ...
-Para baixar um arquivo específico (comando GET):
 
-No cliente, digite GET seguido do nome do arquivo desejado.
+O cliente será iniciado e você poderá interagir com o servidor para listar arquivos e baixar arquivos específicos.
 
-```vbnet
-Digite o comando
+### Comandos Disponíveis no Cliente:
 
-(INDEX, GET <nome_do_arquivo>, ou EXIT):
-```
-O servidor verificará se o arquivo existe e o enviará para o cliente, se disponível.
+- **1. Listar todos arquivos (INDEX):** Use esta opção para listar todos os arquivos disponíveis no servidor.
 
-```arduino
+- **2. Baixar arquivo (GET):** Use esta opção para baixar um arquivo específico do servidor. Você será solicitado a fornecer o nome do arquivo e o diretório de destino.
 
-Conteúdos do arquivo recebidos:
-Conteúdo do arquivo...
-Comandos Disponíveis
-INDEX: Lista os arquivos disponíveis no servidor.
-GET <nome_do_arquivo>: Baixa o arquivo especificado do servidor.
-EXIT: Encerra a aplicação do cliente.
-```
+- **3. Sair:** Use esta opção para encerrar a conexão com o servidor e sair do cliente.
+
+O sistema também inclui validações para garantir que o diretório de destino seja válido e fornece mensagens de erro adequadas quando um arquivo não é encontrado ou um comando inválido é inserido.
+
+ 
