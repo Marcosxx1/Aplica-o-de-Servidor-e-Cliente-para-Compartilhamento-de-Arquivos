@@ -12,7 +12,7 @@ Esta é uma aplicação de servidor e cliente que permite listar arquivos (INDEX
 
 
  
-Compilar os arquivos do servidor:
+### Compilar os arquivos do servidor:
 
  
 
@@ -20,23 +20,19 @@ Compilar os arquivos do servidor:
 ```shell
 javac fileClient/Server.java
  ```
-Execute o servidor, especificando o caminho para a pasta compartilhada (substitua <caminho> pelo caminho real da pasta compartilhada):
+### Execute o servidor, especificando o caminho para a pasta compartilhada (substitua <caminho> pelo caminho real da pasta compartilhada):
 
  
 ```shell
 java fileClient.Server <caminho>
  ```
 
-O servidor estará disponível na porta padrão 8080.
+### O servidor estará disponível na porta padrão 8080.
 
-Configuração do Cliente
+### Configuração do Cliente
 Abra um novo prompt de comando em uma janela separada.
 
 Navegue até o diretório src do projeto:
-
- ```shell
- ```
-
 
 ```shell
 cd caminho/para/o/diretorio/src
@@ -50,7 +46,7 @@ Compile o arquivo do cliente:
 
 
 
-Execute o cliente, especificando o endereço do servidor (localhost) e a porta (8080):
+### Execute o cliente, especificando o endereço do servidor (localhost) e a porta (8080):
 
   ```shell
   java fileClient.Cliente localhost 8080
